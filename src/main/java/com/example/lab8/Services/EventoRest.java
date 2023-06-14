@@ -1,6 +1,7 @@
 package com.example.lab8.Services;
 
 import com.example.lab8.Entity.Evento;
+import com.example.lab8.Entity.TipoTicketEvento;
 import com.example.lab8.Repository.EventoRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,62 @@ public class EventoRest {
         }
         return ResponseEntity.badRequest().body(responseMap);
     }
+
+    /* Revisar comentado para poder correr
+    @GetMapping("/eventoConTipoDeTicket/{id}")
+    public ResponseEntity<HashMap<String, Object>> obtenerEventoConTipoDeTicketPorId(@PathVariable("id") String idStr) {
+        HashMap<String, Object> responseJson = new HashMap<>();
+
+        try {
+            int id = Integer.parseInt(idStr);
+            Optional<Evento> optEvento = eventoRepository.findById(id);
+            if (optEvento.isPresent()) {
+                Evento evento = optEvento.get();
+                List<TipoTicketEvento> tiposTicket = eventot();
+
+                responseJson.put("evento", evento);
+                responseJson.put("tiposTicket", tiposTicket);
+
+                return ResponseEntity.ok(responseJson);
+            } else {
+                responseJson.put("msg", "Evento no encontrado");
+            }
+        } catch (NumberFormatException e) {
+            responseJson.put("msg", "El ID debe ser un número entero positivo");
+        } catch (EntityNotFoundException e) {
+            responseJson.put("msg", "No se encontró el evento con el ID proporcionado");
+        }
+
+        responseJson.put("result", "Falla");
+        return ResponseEntity.badRequest().body(responseJson);
+    }*/
+
+    @DeleteMapping(value = "/evento/{id}")
+    public ResponseEntity<HashMap<String, Object>> borrar(@PathVariable("id") String idStr) {
+
+        HashMap<String, Object> responseMap = new HashMap<>();
+
+        try {
+            int id = Integer.parseInt(idStr);
+            if (eventoRepository.existsById(id)) {
+                eventoRepository.deleteById(id);
+                responseMap.put("estado", "borrado exitoso");
+                return ResponseEntity.ok(responseMap);
+            } else {
+                responseMap.put("estado", "error");
+                responseMap.put("msg", "no se encontró el evento con id: " + id);
+                return ResponseEntity.badRequest().body(responseMap);
+            }
+        } catch (NumberFormatException ex) {
+            responseMap.put("estado", "error");
+            responseMap.put("msg", "El ID debe ser un número");
+            return ResponseEntity.badRequest().body(responseMap);
+        }
+    }
+
+
+
+
 
 
 
