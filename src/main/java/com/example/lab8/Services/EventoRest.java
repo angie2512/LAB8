@@ -3,6 +3,7 @@ package com.example.lab8.Services;
 import com.example.lab8.Entity.Evento;
 import com.example.lab8.Entity.TipoTicketEvento;
 import com.example.lab8.Repository.EventoRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -127,6 +128,51 @@ public class EventoRest {
         }
     }
 
+    @PutMapping("/evento/{id}")
+    public ResponseEntity<HashMap<String, Object>> editarEvento(
+            @PathVariable("id") int id,
+            @RequestBody Evento eventoActualizado
+    ) {
+        HashMap<String, Object> responseJson = new HashMap<>();
+
+        try {
+            Optional<Evento> optEvento = eventoRepository.findById(id);
+            if (optEvento.isPresent()) {
+                Evento eventoExistente = optEvento.get();
+
+                if (eventoActualizado != null) {
+                    if (eventoActualizado.getFecha() != null) {
+                        eventoExistente.setFecha(eventoActualizado.getFecha());
+                    }
+                    if (eventoActualizado.getNombre() != null) {
+                        eventoExistente.setNombre(eventoActualizado.getNombre());
+                    }
+                    if (eventoActualizado.getDescripcion() != null) {
+                        eventoExistente.setDescripcion(eventoActualizado.getDescripcion());
+                    }
+                    if (eventoActualizado.getPathImage() != null) {
+                        eventoExistente.setPathImage(eventoActualizado.getPathImage());
+                    }
+
+                    eventoRepository.save(eventoExistente);
+
+                    responseJson.put("msg", "Evento actualizado con éxito");
+                    responseJson.put("evento", eventoExistente);
+
+                    return ResponseEntity.ok(responseJson);
+                } else {
+                    responseJson.put("msg", "El objeto evento no puede ser nulo");
+                }
+            } else {
+                responseJson.put("msg", "Evento no encontrado");
+            }
+        } catch (EntityNotFoundException e) {
+            responseJson.put("msg", "No se encontró el evento con el ID proporcionado");
+        }
+
+        responseJson.put("result", "Falla");
+        return ResponseEntity.badRequest().body(responseJson);
+    }
 
 
 
